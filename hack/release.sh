@@ -41,6 +41,7 @@ if [[ "$(git rev-parse --abbrev-ref HEAD)" =~ "master" ]]; then
 else
   VERSION="$(git describe --always 2>/dev/null)"
 fi
+VERSION=latest
 GIT_COMMIT="$(git log -1 --format=%H)"
 GCR_KEY_FILE="${GCR_KEY_FILE:-}"
 GOPROXY="${GOPROXY:-https://proxy.golang.org}"

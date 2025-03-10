@@ -155,6 +155,10 @@ type VirtualCenterConfig struct {
 	ReloadVCConfigForNewClient bool
 	// FileVolumeActivated indicates whether file service has been enabled on any vSAN cluster or not
 	FileVolumeActivated bool
+
+	// SharedTokenService is a rest api endpoint capable of generate vCenter Clone tokens to be shared
+	// on different vCenter client sessions
+	SharedTokenService string
 }
 
 // NewClient creates a new govmomi Client instance.
@@ -200,7 +204,7 @@ func (vc *VirtualCenter) NewClient(ctx context.Context, useragent string) (*govm
 		SessionManager: session.NewManager(vimClient),
 	}
 
-	restClient := rest.NewClient(client.Client)
+	restClient := rest.NewClient(vimClient)
 
 	err = vc.login(ctx, client, restClient)
 	if err != nil {
@@ -234,6 +238,21 @@ func (vc *VirtualCenter) NewClient(ctx context.Context, useragent string) (*govm
 func (vc *VirtualCenter) login(ctx context.Context, client *govmomi.Client, restClient *rest.Client) error {
 	log := logger.GetLogger(ctx)
 	var err error
+
+	if vc.Config.SharedTokenService != "" {
+		log.Warnf("going to use DSM Session Manager: %s", vc.Config.SharedTokenService)
+		token, err := GetDSMToken(ctx, vc.Config.SharedTokenService)
+		if err != nil {
+			log.Errorf("error getting DSM session token: %s", err)
+			return err
+		}
+		if err := client.SessionManager.CloneSession(ctx, token); err != nil {
+			log.Errorf("error getting DSM cloned session token: %s", err)
+			return err
+		}
+		restClient.SessionID(client.SessionCookie().Value)
+		return nil
+	}
 
 	b, _ := pem.Decode([]byte(vc.Config.Username))
 	if b == nil {

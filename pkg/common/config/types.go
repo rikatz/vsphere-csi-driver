@@ -157,6 +157,10 @@ type VirtualCenterConfig struct {
 	MigrationDataStoreURL string `gcfg:"migration-datastore-url"`
 	// FileVolumeActivated indicates whether file service has been enabled on any vSAN cluster or not
 	FileVolumeActivated bool
+
+	// SharedTokenService is the path of a rest api capable of generating vCenter Cloned tokens
+	// to be reused by clients. When this is used, Username and Password configuration are ignored
+	SharedTokenService string `gcfg:"shared-token-service"`
 }
 
 // GCConfig contains information used by guest cluster to access a supervisor

@@ -191,7 +191,10 @@ func GetVirtualCenterConfig(ctx context.Context, cfg *config.Config) (*VirtualCe
 		ListVolumeThreshold:         cfg.Global.ListVolumeThreshold,
 		MigrationDataStoreURL:       cfg.VirtualCenter[host].MigrationDataStoreURL,
 		FileVolumeActivated:         cfg.VirtualCenter[host].FileVolumeActivated,
+		SharedTokenService:          cfg.VirtualCenter[host].SharedTokenService,
 	}
+
+	log.Infof("DSM Session Manager: %s", vcConfig.SharedTokenService)
 
 	log.Debugf("Setting the queryLimit = %v, ListVolumeThreshold = %v", vcConfig.QueryLimit, vcConfig.ListVolumeThreshold)
 	if strings.TrimSpace(cfg.VirtualCenter[host].Datacenters) != "" {
@@ -237,6 +240,7 @@ func GetVirtualCenterConfigs(ctx context.Context, cfg *config.Config) ([]*Virtua
 			QueryLimit:                  cfg.Global.QueryLimit,
 			ListVolumeThreshold:         cfg.Global.ListVolumeThreshold,
 			FileVolumeActivated:         cfg.VirtualCenter[vCenterIP].FileVolumeActivated,
+			SharedTokenService:          cfg.VirtualCenter[vCenterIP].SharedTokenService,
 		}
 		if vcConfig.CAFile == "" {
 			vcConfig.CAFile = cfg.Global.CAFile
